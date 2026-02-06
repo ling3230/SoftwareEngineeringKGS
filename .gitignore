@@ -1,0 +1,42 @@
+# Qt 编译生成文件
+build-*/
+*.pro.user
+*.pro.user.*
+Makefile
+Makefile.*
+
+# 编译输出
+*.o
+*.obj
+*.exe
+*.app
+*.dll
+*.so
+*.dylib
+
+# Qt 相关
+moc_*
+ui_*
+qrc_*
+*.moc
+*.qrc.d
+
+# 数据库文件
+*.db
+*.sqlite
+*.db-journal
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE 文件
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 临时文件
+*.tmp
+*.log
+*.pid
