@@ -1,9 +1,0 @@
-C:/aaa_LearningSystem/System/SE_KG/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/CMakeFiles/SE_KG.dir
-C:/aaa_LearningSystem/System/SE_KG/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/CMakeFiles/edit_cache.dir
-C:/aaa_LearningSystem/System/SE_KG/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/CMakeFiles/rebuild_cache.dir
-C:/aaa_LearningSystem/System/SE_KG/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/CMakeFiles/list_install_components.dir
-C:/aaa_LearningSystem/System/SE_KG/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/CMakeFiles/install.dir
-C:/aaa_LearningSystem/System/SE_KG/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/CMakeFiles/install/local.dir
-C:/aaa_LearningSystem/System/SE_KG/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/CMakeFiles/install/strip.dir
-C:/aaa_LearningSystem/System/SE_KG/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/CMakeFiles/SE_KG_autogen_timestamp_deps.dir
-C:/aaa_LearningSystem/System/SE_KG/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/CMakeFiles/SE_KG_autogen.dir
