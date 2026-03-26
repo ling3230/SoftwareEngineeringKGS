@@ -10,6 +10,8 @@
 
 #include "../entity/knowledgepoint.h"
 
+class IKnowledgeStorage;
+
 // 前向声明（保持不变）
 class DatabaseManager;
 
@@ -77,9 +79,20 @@ public:
     bool importFromJsonString(const QString& jsonStr);
     QString exportToJsonString();
 
+    // ============ 新增查询能力 ============
+    QList<KnowledgePoint> findByCategory(const QString& category);
+    QList<KnowledgePoint> findByLanguage(const QString& language);
+
+    // ============ 可扩展存储接口 ============
+    void setStorage(const QSharedPointer<IKnowledgeStorage>& customStorage);
+    bool setJsonStorageRoot(const QString& rootPath);
+
 private:
     // 数据库连接
     QSharedPointer<DatabaseManager> dbManager;
+
+    // 存储抽象，默认使用 JSON 实现
+    QSharedPointer<IKnowledgeStorage> storage;
 
     // 单例实例
     static KnowledgeRepository* instance;
@@ -87,8 +100,8 @@ private:
     // 私有方法
     KnowledgePoint mapToKnowledge(const QSqlRecord& record);//数据库查询结果映射为业务类型
     QVariantMap knowledgeToMap(const KnowledgePoint& knowledge);//业务类型映射为数据库类型
-    QList<int> parseIdList(const QString& jsonStr);//json类型转换knowledge列表
-    QString idListToJson(const QList<int>& ids);//knowledge列表转换json类型
+    QList<QString> parseIdList(const QString& jsonStr);//json类型转换knowledge列表
+    QString idListToJson(const QList<QString>& ids);//knowledge列表转换json类型
 
     // 初始化数据库表
     bool initDatabase();

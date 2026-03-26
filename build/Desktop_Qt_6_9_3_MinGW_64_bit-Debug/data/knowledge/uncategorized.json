@@ -1,0 +1,27 @@
+[
+    {
+        "category": "",
+        "childIds": [
+        ],
+        "content": "",
+        "createdAt": "2026-03-14T18:15:20",
+        "description": "学习JS语法、DOM操作、事件、异步编程",
+        "difficulty": 1,
+        "estimatedTime": 300,
+        "id": "",
+        "importance": 5,
+        "isCore": false,
+        "isLearned": false,
+        "lastStudied": "",
+        "masteryLevel": 0,
+        "postrequisiteIds": [
+        ],
+        "prerequisiteIds": [
+        ],
+        "tags": [
+        ],
+        "title": "JavaScript核心",
+        "type": 0,
+        "updatedAt": "2026-03-14T18:15:20"
+    }
+]

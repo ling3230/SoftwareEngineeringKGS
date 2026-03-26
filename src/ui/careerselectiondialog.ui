@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CareerSelectionDialog</class>
+ <widget class="QDialog" name="CareerSelectionDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>980</width>
+    <height>720</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>920</width>
+    <height>680</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>选择职业发展方向</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/icons/career.png</normaloff>:/icons/career.png</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QDialog {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                                stop:0 #f0f9ff, 
+                                stop:0.5 #e6f3fe,
+                                stop:1 #d9ecff);
+    font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+}
+
+QFrame#headerFrame {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #3498db, stop:1 #2c3e50);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+QLabel#titleLabel {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    padding: 0;
+}
+
+QLabel#descriptionLabel {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+    padding: 5px 0 0 0;
+}
+
+QFrame#contentFrame {
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+QScrollArea {
+    border: none;
+    background: transparent;
+}
+
+QWidget#scrollContent {
+    background: transparent;
+}
+
+QFrame.careerItem {
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    background: white;
+    padding: 15px;
+    margin: 5px;
+}
+
+QFrame.careerItem:hover {
+    border-color: #3498db;
+    background-color: #f8fafc;
+}
+
+QFrame.careerItem[selected=&quot;true&quot;] {
+    border-color: #2ecc71;
+    border-width: 3px;
+    background-color: #f0f9ff;
+}
+
+QLabel.iconLabel {
+    font-size: 32px;
+    qproperty-alignment: AlignCenter;
+}
+
+QLabel.nameLabel {
+    font-size: 16px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+QLabel.descLabel {
+    font-size: 13px;
+    color: #7f8c8d;
+    line-height: 1.4;
+}
+
+QRadioButton.recommendRadio {
+    font-size: 12px;
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+QFrame#footerFrame {
+    background-color: white;
+    border-top: 1px solid #e0e0e0;
+    padding: 15px;
+}
+
+QPushButton {
+    font-size: 14px;
+    font-weight: bold;
+    padding: 10px 25px;
+    border-radius: 6px;
+    border: none;
+    min-width: 100px;
+}
+
+QPushButton#skipButton {
+    background-color: #ecf0f1;
+    color: #7f8c8d;
+}
+
+QPushButton#skipButton:hover {
+    background-color: #d5dbdb;
+}
+
+QPushButton#previousButton {
+    background-color: transparent;
+    color: #5d6d7e;
+    border: 1px solid #aeb6bf;
+}
+
+QPushButton#previousButton:hover {
+    background-color: #ecf0f1;
+}
+
+QPushButton#previousButton:disabled {
+    background-color: #f4f6f7;
+    color: #bdc3c7;
+    border: 1px solid #d5d8dc;
+}
+
+QPushButton#confirmButton {
+    background-color: #2ecc71;
+    color: white;
+}
+
+QPushButton#confirmButton:hover {
+    background-color: #27ae60;
+}
+
+QPushButton#confirmButton:disabled {
+    background-color: #bdc3c7;
+}
+
+QPushButton#settingsButton {
+    background-color: transparent;
+    color: #3498db;
+    border: 1px solid #3498db;
+}
+
+QPushButton#settingsButton:hover {
+    background-color: #3498db;
+    color: white;
+}
+
+QPushButton#laterButton {
+    background-color: transparent;
+    color: #7f8c8d;
+    border: 1px solid #bdc3c7;
+}
+
+QPushButton#laterButton:hover {
+    background-color: #ecf0f1;
+}</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>15</number>
+   </property>
+   <property name="topMargin">
+    <number>15</number>
+   </property>
+   <property name="rightMargin">
+    <number>15</number>
+   </property>
+   <property name="bottomMargin">
+    <number>15</number>
+   </property>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item>
+      <widget class="QFrame" name="headerFrame">
+       <property name="frameShape">
+        <enum>QFrame::Shape::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Shadow::Raised</enum>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="spacing">
+         <number>5</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="titleLabel">
+          <property name="text">
+           <string>选择您的职业发展方向</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="descriptionLabel">
+          <property name="text">
+           <string>请选择一个最符合您目标的方向，系统将为您推荐相应的学习路径和技能图谱。</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QStackedWidget" name="contentStack">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="page_3">
+        <layout class="QVBoxLayout" name="page3Layout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QScrollArea" name="mainScrollArea">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>948</width>
+              <height>460</height>
+             </rect>
+            </property>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="page_5">
+        <layout class="QVBoxLayout" name="page5Layout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QScrollArea" name="backendScrollArea">
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents_2">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>100</width>
+              <height>30</height>
+             </rect>
+            </property>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="page_4">
+        <layout class="QVBoxLayout" name="page4Layout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QScrollArea" name="frontendScrollArea">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents_3">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>100</width>
+              <height>30</height>
+             </rect>
+            </property>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="QFrame" name="footerFrame">
+       <property name="frameShape">
+        <enum>QFrame::Shape::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Shadow::Raised</enum>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <property name="spacing">
+         <number>15</number>
+        </property>
+        <item>
+         <widget class="QPushButton" name="skipButton">
+          <property name="text">
+           <string>跳过</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="previousButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>上一步</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="settingsButton">
+          <property name="text">
+           <string>以后再说</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="confirmButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>确认选择</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

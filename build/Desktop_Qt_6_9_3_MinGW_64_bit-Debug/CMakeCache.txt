@@ -343,6 +343,18 @@ Qt6GuiTools_DIR:PATH=C:/Qt/6.9.3/mingw_64/lib/cmake/Qt6GuiTools
 //The directory containing a CMake configuration file for Qt6Gui.
 Qt6Gui_DIR:PATH=C:/Qt/6.9.3/mingw_64/lib/cmake/Qt6Gui
 
+//The directory containing a CMake configuration file for Qt6OpenGLPrivate.
+Qt6OpenGLPrivate_DIR:PATH=C:/Qt/6.9.3/mingw_64/lib/cmake/Qt6OpenGLPrivate
+
+//The directory containing a CMake configuration file for Qt6OpenGLWidgetsPrivate.
+Qt6OpenGLWidgetsPrivate_DIR:PATH=C:/Qt/6.9.3/mingw_64/lib/cmake/Qt6OpenGLWidgetsPrivate
+
+//The directory containing a CMake configuration file for Qt6OpenGLWidgets.
+Qt6OpenGLWidgets_DIR:PATH=C:/Qt/6.9.3/mingw_64/lib/cmake/Qt6OpenGLWidgets
+
+//The directory containing a CMake configuration file for Qt6OpenGL.
+Qt6OpenGL_DIR:PATH=C:/Qt/6.9.3/mingw_64/lib/cmake/Qt6OpenGL
+
 //The directory containing a CMake configuration file for Qt6SqlPrivate.
 Qt6SqlPrivate_DIR:PATH=C:/Qt/6.9.3/mingw_64/lib/cmake/Qt6SqlPrivate
 

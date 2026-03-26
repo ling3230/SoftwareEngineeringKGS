@@ -22,6 +22,10 @@ public:
 
     ~DatabaseManager();
 
+    // 新增：数据库初始化
+    bool initializeDatabase();
+    bool checkTableExists(const QString& tableName);
+
 private:
     explicit DatabaseManager(QObject *parent = nullptr);
 
@@ -30,6 +34,13 @@ private:
 
     static DatabaseManager* instance;
     QSqlDatabase database;
+
+    // 创建各个表的方法
+    bool createUsersTable();
+    bool createKnowledgePointsTable();
+    bool createKnowledgeRelationsTable();
+    bool createLearningRecordsTable();
+
 };
 
 #endif // DATABASEMANAGER_H

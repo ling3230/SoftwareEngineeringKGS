@@ -3,31 +3,83 @@
 #include <QJsonDocument>
 #include <QDebug>
 
+namespace {
+
+QJsonArray toJsonArray(const QList<QString>& ids)
+{
+    QJsonArray array;
+    for (const QString& id : ids) {
+        array.append(id);
+    }
+    return array;
+}
+
+QList<QString> fromJsonArray(const QJsonValue& value)
+{
+    QList<QString> ids;
+    const QJsonArray array = value.toArray();
+    for (const QJsonValue& item : array) {
+        if (item.isString()) {
+            ids.append(item.toString());
+        } else if (item.isDouble()) {
+            ids.append(QString::number(item.toInt()));
+        }
+    }
+    return ids;
+}
+
+QList<QString> deduplicateIds(const QList<QString>& input)
+{
+    QList<QString> result;
+    for (const QString& id : input) {
+        const QString trimmed = id.trimmed();
+        if (!trimmed.isEmpty() && !result.contains(trimmed)) {
+            result.append(trimmed);
+        }
+    }
+    return result;
+}
+
+}
+
 // 构造函数
 KnowledgePoint::KnowledgePoint()
-    : id(-1)  // -1表示无效ID
+    : id("")
     , type(KnowledgeType::CONCEPT)
     , difficulty(DifficultyLevel::BEGINNER)
     , estimatedTime(60)  // 默认60分钟
-    , parentId(-1)  // -1表示没有父节点
+    , importance(5)
+    , isCore(false)
     , isLearned(false)
     , masteryLevel(0)
 {
-    lastStudied = QDateTime();  // 默认构造为无效时间
+    const QDateTime now = QDateTime::currentDateTime();
+    createdAt = now;
+    updatedAt = now;
+    lastStudied = QDateTime();
 }
 
-KnowledgePoint::KnowledgePoint(int id, const QString& title, const QString& description)
+KnowledgePoint::KnowledgePoint(const QString& id, const QString& title, const QString& description)
     : id(id)
     , title(title)
     , description(description)
     , type(KnowledgeType::CONCEPT)
     , difficulty(DifficultyLevel::BEGINNER)
     , estimatedTime(60)
-    , parentId(-1)
+    , importance(5)
+    , isCore(false)
     , isLearned(false)
     , masteryLevel(0)
 {
+    const QDateTime now = QDateTime::currentDateTime();
+    createdAt = now;
+    updatedAt = now;
     lastStudied = QDateTime();
+}
+
+KnowledgePoint::KnowledgePoint(int id, const QString& title, const QString& description)
+    : KnowledgePoint(QString::number(id), title, description)
+{
 }
 
 // 在构造函数后面添加：
@@ -39,12 +91,17 @@ KnowledgePoint::KnowledgePoint(const KnowledgePoint& other)
     , type(other.type)
     , difficulty(other.difficulty)
     , estimatedTime(other.estimatedTime)
-    , parentId(other.parentId)
     , prerequisiteIds(other.prerequisiteIds)
-    , childIds(other.childIds)
+    , postrequisiteIds(other.postrequisiteIds)
+    , category(other.category)
+    , tags(other.tags)
+    , importance(other.importance)
+    , isCore(other.isCore)
     , isLearned(other.isLearned)
     , masteryLevel(other.masteryLevel)
     , lastStudied(other.lastStudied)
+    , createdAt(other.createdAt)
+    , updatedAt(other.updatedAt)
 {
 }
 
@@ -58,19 +115,27 @@ KnowledgePoint& KnowledgePoint::operator=(const KnowledgePoint& other)
         type = other.type;
         difficulty = other.difficulty;
         estimatedTime = other.estimatedTime;
-        parentId = other.parentId;
         prerequisiteIds = other.prerequisiteIds;
-        childIds = other.childIds;
+        postrequisiteIds = other.postrequisiteIds;
+        category = other.category;
+        tags = other.tags;
+        importance = other.importance;
+        isCore = other.isCore;
         isLearned = other.isLearned;
         masteryLevel = other.masteryLevel;
         lastStudied = other.lastStudied;
+        createdAt = other.createdAt;
+        updatedAt = other.updatedAt;
     }
     return *this;
 }
 
 // ============ Getter方法实现 ============
-int KnowledgePoint::getId() const {
+QString KnowledgePoint::getId() const {
     return id;
+}
+int KnowledgePoint::getIdAsInt() const {
+    return id.toInt();
 }
 QString KnowledgePoint::getTitle() const {
     return title;
@@ -90,14 +155,35 @@ DifficultyLevel KnowledgePoint::getDifficulty() const {
 int KnowledgePoint::getEstimatedTime() const {
     return estimatedTime;
 }
-int KnowledgePoint::getParentId() const {
-    return parentId;
-}
-QList<int> KnowledgePoint::getPrerequisiteIds() const {
+QList<QString> KnowledgePoint::getPrerequisiteIds() const {
     return prerequisiteIds;
 }
-QList<int> KnowledgePoint::getChildIds() const {
-    return childIds;
+QList<QString> KnowledgePoint::getPostrequisiteIds() const {
+    return postrequisiteIds;
+}
+QList<QString> KnowledgePoint::getChildIds() const {
+    return postrequisiteIds;
+}
+QString KnowledgePoint::getPrimaryParentId() const {
+    if (prerequisiteIds.isEmpty()) {
+        return QString();
+    }
+    return prerequisiteIds.first();
+}
+int KnowledgePoint::getParentId() const {
+    return getPrimaryParentId().toInt();
+}
+QString KnowledgePoint::getCategory() const {
+    return category;
+}
+QList<QString> KnowledgePoint::getTags() const {
+    return tags;
+}
+int KnowledgePoint::getImportance() const {
+    return importance;
+}
+bool KnowledgePoint::getIsCore() const {
+    return isCore;
 }
 bool KnowledgePoint::getIsLearned() const {
     return isLearned;
@@ -108,45 +194,108 @@ int KnowledgePoint::getMasteryLevel() const {
 QDateTime KnowledgePoint::getLastStudied() const {
     return lastStudied;
 }
+QDateTime KnowledgePoint::getCreatedAt() const {
+    return createdAt;
+}
+QDateTime KnowledgePoint::getUpdatedAt() const {
+    return updatedAt;
+}
 
 // ============ Setter方法实现 ============
+void KnowledgePoint::setId(const QString& id) {
+    this->id = id.trimmed();
+    updatedAt = QDateTime::currentDateTime();
+}
 void KnowledgePoint::setId(int id) {
-    this->id = id;
+    this->id = QString::number(id);
+    updatedAt = QDateTime::currentDateTime();
 }
 void KnowledgePoint::setTitle(const QString& title) {
     this->title = title;
+    updatedAt = QDateTime::currentDateTime();
 }
 void KnowledgePoint::setDescription(const QString& description) {
     this->description = description;
+    updatedAt = QDateTime::currentDateTime();
 }
 void KnowledgePoint::setContent(const QString& content) {
     this->content = content;
+    updatedAt = QDateTime::currentDateTime();
 }
 void KnowledgePoint::setType(KnowledgeType type) {
     this->type = type;
+    updatedAt = QDateTime::currentDateTime();
 }
 void KnowledgePoint::setDifficulty(DifficultyLevel difficulty) {
     this->difficulty = difficulty;
+    updatedAt = QDateTime::currentDateTime();
 }
 void KnowledgePoint::setEstimatedTime(int minutes) {
     if (minutes > 0) {
         this->estimatedTime = minutes;
+        updatedAt = QDateTime::currentDateTime();
     }
 }
+void KnowledgePoint::setPrerequisiteIds(const QList<QString>& ids) {
+    prerequisiteIds = deduplicateIds(ids);
+    updatedAt = QDateTime::currentDateTime();
+}
+void KnowledgePoint::setPostrequisiteIds(const QList<QString>& ids) {
+    postrequisiteIds = deduplicateIds(ids);
+    updatedAt = QDateTime::currentDateTime();
+}
+void KnowledgePoint::setChildIds(const QList<QString>& ids) {
+    setPostrequisiteIds(ids);
+}
+void KnowledgePoint::setPrimaryParentId(const QString& parentId) {
+    const QString trimmed = parentId.trimmed();
+    if (trimmed.isEmpty()) {
+        if (!prerequisiteIds.isEmpty()) {
+            prerequisiteIds.removeFirst();
+        }
+    } else if (prerequisiteIds.isEmpty()) {
+        prerequisiteIds.append(trimmed);
+    } else {
+        prerequisiteIds[0] = trimmed;
+    }
+    prerequisiteIds = deduplicateIds(prerequisiteIds);
+    updatedAt = QDateTime::currentDateTime();
+}
 void KnowledgePoint::setParentId(int parentId) {
-    this->parentId = parentId;
+    if (parentId > 0) {
+        setPrimaryParentId(QString::number(parentId));
+    } else {
+        setPrimaryParentId(QString());
+    }
 }
-void KnowledgePoint::setPrerequisiteIds(const QList<int>& ids) {
-    this->prerequisiteIds = ids;
+void KnowledgePoint::setCategory(const QString& category) {
+    this->category = category;
+    updatedAt = QDateTime::currentDateTime();
 }
-void KnowledgePoint::setChildIds(const QList<int>& ids) {
-    this->childIds = ids;
+void KnowledgePoint::setTags(const QList<QString>& tags) {
+    this->tags = deduplicateIds(tags);
+    updatedAt = QDateTime::currentDateTime();
+}
+void KnowledgePoint::setImportance(int importance) {
+    if (importance < 1) {
+        this->importance = 1;
+    } else if (importance > 10) {
+        this->importance = 10;
+    } else {
+        this->importance = importance;
+    }
+    updatedAt = QDateTime::currentDateTime();
+}
+void KnowledgePoint::setIsCore(bool isCore) {
+    this->isCore = isCore;
+    updatedAt = QDateTime::currentDateTime();
 }
 void KnowledgePoint::setIsLearned(bool learned) {
     this->isLearned = learned;
     if (learned && masteryLevel < 1) {
         masteryLevel = 1;  // 至少设置为1
     }
+    updatedAt = QDateTime::currentDateTime();
 }
 void KnowledgePoint::setMasteryLevel(int level) {
     // 限制在0-100之间
@@ -158,9 +307,12 @@ void KnowledgePoint::setMasteryLevel(int level) {
     if (masteryLevel > 0 && !isLearned) {
         isLearned = true;
     }
+
+    updatedAt = QDateTime::currentDateTime();
 }
 void KnowledgePoint::setLastStudied(const QDateTime& time) {
     this->lastStudied = time;
+    updatedAt = QDateTime::currentDateTime();
 }
 
 // ============ 业务方法实现 ============
@@ -201,11 +353,13 @@ QString KnowledgePoint::getDifficultyString() const {
     }
 }
 QString KnowledgePoint::toString() const {
-    return QString("KnowledgePoint[ID:%1, 标题:%2, 类型:%3, 难度:%4]")
+    return QString("KnowledgePoint[ID:%1, 标题:%2, 类型:%3, 难度:%4, 前置:%5, 后置:%6]")
         .arg(id)
         .arg(title)
         .arg(getTypeString())
-        .arg(getDifficultyString());
+        .arg(getDifficultyString())
+        .arg(prerequisiteIds.size())
+        .arg(postrequisiteIds.size());
 }
 
 // ============ 状态更新方法 ============
@@ -213,10 +367,12 @@ void KnowledgePoint::markAsLearned(int masteryLevel) {
     isLearned = true;
     setMasteryLevel(masteryLevel);
     lastStudied = QDateTime::currentDateTime();
+    updatedAt = QDateTime::currentDateTime();
 }
 void KnowledgePoint::markAsUnlearned() {
     isLearned = false;
     masteryLevel = 0;
+    updatedAt = QDateTime::currentDateTime();
 }
 void KnowledgePoint::updateMastery(int delta) {
     int newLevel = masteryLevel + delta;
@@ -229,24 +385,23 @@ void KnowledgePoint::updateMastery(int delta) {
             isLearned = true;
         }
     }
+
+    updatedAt = QDateTime::currentDateTime();
 }
 
 // ============ 关系检查方法 ============
 bool KnowledgePoint::hasParent() const {
-    return parentId > 0;  // 大于0表示有父节点
+    return !prerequisiteIds.isEmpty();
 }
 bool KnowledgePoint::hasChildren() const {
-    return !childIds.isEmpty();
+    return !postrequisiteIds.isEmpty();
 }
 bool KnowledgePoint::hasPrerequisites() const {
     return !prerequisiteIds.isEmpty();
 }
-bool KnowledgePoint::isPrerequisiteFor(int knowledgeId) const {
-    // 检查当前知识点是否是指定知识点的先修
-    // 注意：这个方法的完整实现需要外部提供知识点的依赖关系
-    // 这里只是占位实现
-    Q_UNUSED(knowledgeId);
-    return false;  // 实际实现中需要查询关系数据库
+bool KnowledgePoint::isPrerequisiteFor(const QString& knowledgeId) const {
+    // 当前节点是否直接指向目标后置节点
+    return postrequisiteIds.contains(knowledgeId.trimmed());
 }
 
 // ============ 序列化/反序列化方法 ============
@@ -259,50 +414,54 @@ QJsonObject KnowledgePoint::toJson() const {
     json["type"] = static_cast<int>(type);
     json["difficulty"] = static_cast<int>(difficulty);
     json["estimatedTime"] = estimatedTime;
-    json["parentId"] = parentId;
+    json["prerequisiteIds"] = toJsonArray(prerequisiteIds);
+    json["postrequisiteIds"] = toJsonArray(postrequisiteIds);
+    // 兼容旧字段名
+    json["childIds"] = toJsonArray(postrequisiteIds);
 
-    // 将列表转换为JSON数组
-    QJsonArray prereqArray;
-    for (int prereqId : prerequisiteIds) {
-        prereqArray.append(prereqId);
-    }
-    json["prerequisiteIds"] = prereqArray;
-
-    QJsonArray childArray;
-    for (int childId : childIds) {
-        childArray.append(childId);
-    }
-    json["childIds"] = childArray;
+    json["category"] = category;
+    json["tags"] = toJsonArray(tags);
+    json["importance"] = importance;
+    json["isCore"] = isCore;
 
     // 学习状态
     json["isLearned"] = isLearned;
     json["masteryLevel"] = masteryLevel;
     json["lastStudied"] = lastStudied.toString(Qt::ISODate);
+    json["createdAt"] = createdAt.toString(Qt::ISODate);
+    json["updatedAt"] = updatedAt.toString(Qt::ISODate);
 
     return json;
 }
 KnowledgePoint KnowledgePoint::fromJson(const QJsonObject& json) {
     KnowledgePoint kp;
 
-    kp.id = json["id"].toInt();
+    if (json["id"].isString()) {
+        kp.id = json["id"].toString();
+    } else if (json["id"].isDouble()) {
+        kp.id = QString::number(json["id"].toInt());
+    }
     kp.title = json["title"].toString();
     kp.description = json["description"].toString();
     kp.content = json["content"].toString();
     kp.type = static_cast<KnowledgeType>(json["type"].toInt());
     kp.difficulty = static_cast<DifficultyLevel>(json["difficulty"].toInt());
     kp.estimatedTime = json["estimatedTime"].toInt();
-    kp.parentId = json["parentId"].toInt();
 
-    // 解析数组
-    QJsonArray prereqArray = json["prerequisiteIds"].toArray();
-    for (const QJsonValue& value : prereqArray) {
-        kp.prerequisiteIds.append(value.toInt());
+    kp.prerequisiteIds = deduplicateIds(fromJsonArray(json["prerequisiteIds"]));
+    if (kp.prerequisiteIds.isEmpty() && json.contains("parentId") && json["parentId"].toInt() > 0) {
+        kp.prerequisiteIds.append(QString::number(json["parentId"].toInt()));
     }
 
-    QJsonArray childArray = json["childIds"].toArray();
-    for (const QJsonValue& value : childArray) {
-        kp.childIds.append(value.toInt());
+    kp.postrequisiteIds = deduplicateIds(fromJsonArray(json["postrequisiteIds"]));
+    if (kp.postrequisiteIds.isEmpty()) {
+        kp.postrequisiteIds = deduplicateIds(fromJsonArray(json["childIds"]));
     }
+
+    kp.category = json["category"].toString();
+    kp.tags = deduplicateIds(fromJsonArray(json["tags"]));
+    kp.importance = json.contains("importance") ? json["importance"].toInt() : 5;
+    kp.isCore = json["isCore"].toBool(false);
 
     // 学习状态
     kp.isLearned = json["isLearned"].toBool();
@@ -310,6 +469,23 @@ KnowledgePoint KnowledgePoint::fromJson(const QJsonObject& json) {
     QString lastStudiedStr = json["lastStudied"].toString();
     if (!lastStudiedStr.isEmpty()) {
         kp.lastStudied = QDateTime::fromString(lastStudiedStr, Qt::ISODate);
+    }
+
+    QString createdAtStr = json["createdAt"].toString();
+    if (!createdAtStr.isEmpty()) {
+        kp.createdAt = QDateTime::fromString(createdAtStr, Qt::ISODate);
+    }
+
+    QString updatedAtStr = json["updatedAt"].toString();
+    if (!updatedAtStr.isEmpty()) {
+        kp.updatedAt = QDateTime::fromString(updatedAtStr, Qt::ISODate);
+    }
+
+    if (!kp.createdAt.isValid()) {
+        kp.createdAt = QDateTime::currentDateTime();
+    }
+    if (!kp.updatedAt.isValid()) {
+        kp.updatedAt = kp.createdAt;
     }
 
     return kp;
@@ -328,31 +504,75 @@ KnowledgePoint KnowledgePoint::fromJsonString(const QString& jsonStr) {
 }
 
 // ============ 关系操作方法 ============
-void KnowledgePoint::addPrerequisite(int knowledgeId) {
-    if (knowledgeId > 0 && !hasPrerequisite(knowledgeId)) {
-        prerequisiteIds.append(knowledgeId);
+void KnowledgePoint::addPrerequisite(const QString& knowledgeId) {
+    const QString trimmed = knowledgeId.trimmed();
+    if (!trimmed.isEmpty() && !hasPrerequisite(trimmed)) {
+        prerequisiteIds.append(trimmed);
+        updatedAt = QDateTime::currentDateTime();
     }
 }
+void KnowledgePoint::addPrerequisite(int knowledgeId) {
+    if (knowledgeId > 0) {
+        addPrerequisite(QString::number(knowledgeId));
+    }
+}
+void KnowledgePoint::removePrerequisite(const QString& knowledgeId) {
+    prerequisiteIds.removeAll(knowledgeId.trimmed());
+    updatedAt = QDateTime::currentDateTime();
+}
 void KnowledgePoint::removePrerequisite(int knowledgeId) {
-    prerequisiteIds.removeAll(knowledgeId);
+    removePrerequisite(QString::number(knowledgeId));
+}
+bool KnowledgePoint::hasPrerequisite(const QString& knowledgeId) const {
+    return prerequisiteIds.contains(knowledgeId.trimmed());
 }
 bool KnowledgePoint::hasPrerequisite(int knowledgeId) const {
-    return prerequisiteIds.contains(knowledgeId);
+    return hasPrerequisite(QString::number(knowledgeId));
 }
 void KnowledgePoint::clearPrerequisites() {
     prerequisiteIds.clear();
+    updatedAt = QDateTime::currentDateTime();
 }
-void KnowledgePoint::addChild(int knowledgeId) {
-    if (knowledgeId > 0 && !hasChild(knowledgeId)) {
-        childIds.append(knowledgeId);
+
+void KnowledgePoint::addPostrequisite(const QString& knowledgeId) {
+    const QString trimmed = knowledgeId.trimmed();
+    if (!trimmed.isEmpty() && !hasPostrequisite(trimmed)) {
+        postrequisiteIds.append(trimmed);
+        updatedAt = QDateTime::currentDateTime();
     }
 }
+void KnowledgePoint::removePostrequisite(const QString& knowledgeId) {
+    postrequisiteIds.removeAll(knowledgeId.trimmed());
+    updatedAt = QDateTime::currentDateTime();
+}
+bool KnowledgePoint::hasPostrequisite(const QString& knowledgeId) const {
+    return postrequisiteIds.contains(knowledgeId.trimmed());
+}
+void KnowledgePoint::clearPostrequisites() {
+    postrequisiteIds.clear();
+    updatedAt = QDateTime::currentDateTime();
+}
+
+void KnowledgePoint::addChild(const QString& knowledgeId) {
+    addPostrequisite(knowledgeId);
+}
+void KnowledgePoint::addChild(int knowledgeId) {
+    if (knowledgeId > 0) {
+        addPostrequisite(QString::number(knowledgeId));
+    }
+}
+void KnowledgePoint::removeChild(const QString& knowledgeId) {
+    removePostrequisite(knowledgeId);
+}
 void KnowledgePoint::removeChild(int knowledgeId) {
-    childIds.removeAll(knowledgeId);
+    removePostrequisite(QString::number(knowledgeId));
+}
+bool KnowledgePoint::hasChild(const QString& knowledgeId) const {
+    return hasPostrequisite(knowledgeId);
 }
 bool KnowledgePoint::hasChild(int knowledgeId) const {
-    return childIds.contains(knowledgeId);
+    return hasPostrequisite(QString::number(knowledgeId));
 }
 void KnowledgePoint::clearChildren() {
-    childIds.clear();
+    clearPostrequisites();
 }

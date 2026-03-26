@@ -9,8 +9,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Sql)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Sql OpenGL OpenGLWidgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql OpenGL OpenGLWidgets)
 
 # ============ 主要修改开始 ============
 
@@ -33,6 +33,20 @@ set(PROJECT_SOURCES
     src/core/entity/knowledgepoint.cpp
     src/core/repository/knowledgerepository.cpp
     src/core/repository/knowledgerepository.h
+    src/core/repository/storage/iknowledgestorage.h
+    src/core/repository/storage/jsonknowledgestorage.h
+    src/core/repository/storage/jsonknowledgestorage.cpp
+    src/core/entity/userprofile.h
+    src/core/entity/userprofile.cpp
+    src/core/repository/userrepository.h
+    src/core/repository/userrepository.cpp
+    src/core/entity/careerdirection.h
+    src/core/entity/careerdirection.cpp
+    src/core/entity/careerpath.h
+    src/core/entity/careerpath.cpp
+    src/ui/knowledgegraph3dwidget.h
+    src/ui/knowledgegraph3dwidget.cpp
+
 )
 
 # 3. 设置资源文件（如果需要）
@@ -45,11 +59,23 @@ set(PROJECT_SOURCES
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
     qt_add_executable(SE_KG
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        # 资源文件可以在这里添加
+        src/core/service/loginservice.h src/core/service/loginservice.cpp
+
+        src/ui/logindialog.h
+        src/ui/logindialog.cpp
+        src/ui/logindialog.ui
+
+        src/ui/careerselectiondialog.h
+        src/ui/careerselectiondialog.cpp
+        src/ui/careerselectiondialog.ui
+        src/core/service/careerservice.h
+        src/core/service/careerservice.cpp
         # ${PROJECT_RESOURCES}
     )
 else()
@@ -64,7 +90,9 @@ else()
     endif()
 endif()
 
-target_link_libraries(SE_KG PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Sql)
+target_link_libraries(SE_KG PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Sql Qt${QT_VERSION_MAJOR}::OpenGL Qt${QT_VERSION_MAJOR}::OpenGLWidgets)
+target_link_libraries(SE_KG PRIVATE Qt6::Core)
+target_link_libraries(SE_KG PRIVATE Qt6::Core)
 target_link_libraries(SE_KG PRIVATE Qt6::Core)
 
 # 设置目标属性
